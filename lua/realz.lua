@@ -49,14 +49,19 @@ contentFrame.Size = UDim2.new(1, -20, 1, -50)
 contentFrame.Position = UDim2.new(0, 10, 0, 40)
 contentFrame.BackgroundTransparency = 1
 contentFrame.ScrollBarThickness = 0
-contentFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
 contentFrame.Parent = mainFrame
 
+-- Layout for content
 local layout = Instance.new("UIListLayout")
 layout.Padding = UDim.new(0, 10)
 layout.FillDirection = Enum.FillDirection.Vertical
 layout.SortOrder = Enum.SortOrder.LayoutOrder
 layout.Parent = contentFrame
+
+-- Update CanvasSize dynamically after layout
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    contentFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+end)
 
 -- Collapse Logic
 collapseIcon.MouseButton1Click:Connect(function()
@@ -161,25 +166,22 @@ local function createSlider(parent, labelText, minVal, maxVal, defaultVal)
     scorner.CornerRadius = UDim.new(0,6)
     scorner.Parent = slider
 
-slider.FocusLost:Connect(function()
-    local val = tonumber(slider.Text)
-    if val and val >= minVal and val <= maxVal then
-        label.Text = labelText .. ": " .. val
-        local char = player.Character
-        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            if string.find(labelText, "WalkSpeed") then
-                humanoid.WalkSpeed = val
-            elseif string.find(labelText, "JumpPower") then
-                humanoid.UseJumpPower = true
-                humanoid.JumpPower = val
+    slider.FocusLost:Connect(function()
+        local val = tonumber(slider.Text)
+        if val and val>=minVal and val<=maxVal then
+            label.Text = labelText..": "..val
+            local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                if string.find(labelText, "WalkSpeed") then
+                    humanoid.WalkSpeed = val
+                elseif string.find(labelText, "JumpPower") then
+                    humanoid.UseJumpPower = true
+                    humanoid.JumpPower = val
+                end
             end
-        end
-    else
-        slider.Text = tostring(defaultVal)
-    end
-end)
-
+        else slider.Text=tostring(defaultVal) end
+    end)
+end
 
 -- Unified Content
 createSlider(contentFrame, "WalkSpeed", 16, 300, 100)
@@ -191,14 +193,17 @@ createToggle(contentFrame, "Toggle Fly", function(on)
     local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     if on then
-        local bv = Instance.new("BodyVelocity", hrp)
-        bv.Name="FlyVelocity" bv.MaxForce=Vector3.new(math.huge,math.huge,math.huge)
-        flyConnection=RunService.RenderStepped:Connect(function()
-            bv.Velocity=Vector3.new(0,50,0)
+        local bv = Instance.new("BodyVelocity")
+        bv.Name = "FlyVelocity"
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bv.Parent = hrp
+        flyConnection = RunService.RenderStepped:Connect(function()
+            bv.Velocity = Vector3.new(0,50,0)
         end)
     else
         if flyConnection then flyConnection:Disconnect() end
-        local v=hrp:FindFirstChild("FlyVelocity") if v then v:Destroy() end
+        local v = hrp:FindFirstChild("FlyVelocity")
+        if v then v:Destroy() end
     end
 end)
 
