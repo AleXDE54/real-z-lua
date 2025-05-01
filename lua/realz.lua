@@ -77,13 +77,12 @@ collapseIcon.MouseButton1Click:Connect(function()
     isCollapsed = not isCollapsed
 end)
 
--- Factories
-local function createToggle(parent, text, callback)
+local function createToggle(tab, text, callback)
     local btn = Instance.new("Frame")
     btn.Size = UDim2.new(1, 0, 0, 40)
     btn.BackgroundColor3 = MAIN_COLOR
     btn.BorderSizePixel = 0
-    btn.Parent = parent
+    btn.Parent = tab
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
@@ -94,7 +93,7 @@ local function createToggle(parent, text, callback)
     label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = Color3.new(1,1,1)
+    label.TextColor3 = Color3.new(1, 1, 1)
     label.Font = Enum.Font.Gotham
     label.TextSize = 18
     label.Parent = btn
@@ -106,16 +105,20 @@ local function createToggle(parent, text, callback)
     indicator.BorderSizePixel = 0
     indicator.Parent = btn
 
-    local indCorner = Instance.new("UICorner")
-    indCorner.CornerRadius = UDim.new(1, 0)
-    indCorner.Parent = indicator
+    local icorner = Instance.new("UICorner")
+    icorner.CornerRadius = UDim.new(1, 0)
+    icorner.Parent = indicator
 
     local state = false
     label.MouseButton1Click:Connect(function()
         state = not state
-        indicator.BackgroundColor3 = state and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
+        indicator.BackgroundColor3 = state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
         callback(state)
     end)
+
+    -- Manually update CanvasSize after adding a new toggle
+    game:GetService("RunService").Heartbeat:Wait()
+    contentFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
 end
 
 local function createButton(parent, text, callback)
