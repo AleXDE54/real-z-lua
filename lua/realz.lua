@@ -1,36 +1,46 @@
--- Roblox Cheater GUI — Unified Menu
--- Paste into LocalScript inside ScreenGui under StarterGui
-
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+
 local player = Players.LocalPlayer
+while not player do
+    Players.PlayerAdded:Wait()
+    player = Players.LocalPlayer
+end
 
-local gui = script.Parent
 local MAIN_COLOR = Color3.fromRGB(70, 130, 180)
+local WINDOW_SIZE = UDim2.new(0, 300, 0, 500)
+local WINDOW_POSITION = UDim2.new(0.5, -150, 0.5, -250)
+local COLLAPSED_SIZE = UDim2.new(0, 40, 0, 40)
 
--- Main Frame
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "RealiizGUI"
+screenGui.Parent = player:FindFirstChildOfClass("PlayerGui")
+screenGui.ResetOnSpawn = false
+
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 300, 0, 400)
-mainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
+mainFrame.Size = WINDOW_SIZE
+mainFrame.Position = WINDOW_POSITION
 mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
-mainFrame.Parent = gui
+mainFrame.Name = "MainFrame"
+mainFrame.Parent = screenGui
 
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = mainFrame
 
--- Collapse Button
 local collapseIcon = Instance.new("TextButton")
 collapseIcon.Name = "CollapseIcon"
 collapseIcon.Size = UDim2.new(0, 30, 0, 30)
 collapseIcon.Position = UDim2.new(1, -35, 0, 5)
 collapseIcon.BackgroundColor3 = MAIN_COLOR
 collapseIcon.BorderSizePixel = 0
-collapseIcon.Text = "-"
+collapseIcon.Text = "_"
 collapseIcon.TextColor3 = Color3.new(1, 1, 1)
 collapseIcon.TextScaled = true
 collapseIcon.Font = Enum.Font.GothamBold
@@ -43,7 +53,6 @@ collapseCorner.Parent = collapseIcon
 local isCollapsed = false
 local fullSize = mainFrame.Size
 
--- Unified Content Area
 local contentFrame = Instance.new("ScrollingFrame")
 contentFrame.Size = UDim2.new(1, -20, 1, -50)
 contentFrame.Position = UDim2.new(0, 10, 0, 40)
@@ -51,38 +60,35 @@ contentFrame.BackgroundTransparency = 1
 contentFrame.ScrollBarThickness = 0
 contentFrame.Parent = mainFrame
 
--- Layout for content
 local layout = Instance.new("UIListLayout")
 layout.Padding = UDim.new(0, 10)
 layout.FillDirection = Enum.FillDirection.Vertical
 layout.SortOrder = Enum.SortOrder.LayoutOrder
 layout.Parent = contentFrame
 
--- Update CanvasSize dynamically after layout
 layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     contentFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
 end)
 
--- Collapse Logic
 collapseIcon.MouseButton1Click:Connect(function()
     if not isCollapsed then
-        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 40, 0, 40)}):Play()
+        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = COLLAPSED_SIZE}):Play()
         contentFrame.Visible = false
-        collapseIcon.Text = "*"
+        collapseIcon.Text = "🌀"
     else
         TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = fullSize}):Play()
         contentFrame.Visible = true
-        collapseIcon.Text = "-"
+        collapseIcon.Text = "_"
     end
     isCollapsed = not isCollapsed
 end)
 
-local function createToggle(tab, text, callback)
+local function createToggle(parent, text, callback)
     local btn = Instance.new("Frame")
     btn.Size = UDim2.new(1, 0, 0, 40)
     btn.BackgroundColor3 = MAIN_COLOR
     btn.BorderSizePixel = 0
-    btn.Parent = tab
+    btn.Parent = parent
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
@@ -96,6 +102,7 @@ local function createToggle(tab, text, callback)
     label.TextColor3 = Color3.new(1, 1, 1)
     label.Font = Enum.Font.Gotham
     label.TextSize = 18
+    label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = btn
 
     local indicator = Instance.new("Frame")
@@ -113,12 +120,17 @@ local function createToggle(tab, text, callback)
     label.MouseButton1Click:Connect(function()
         state = not state
         indicator.BackgroundColor3 = state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-        callback(state)
+        if callback then callback(state) end
     end)
 
-    -- Manually update CanvasSize after adding a new toggle
-    game:GetService("RunService").Heartbeat:Wait()
-    contentFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+    return {
+        SetState = function(newState)
+            state = newState
+            indicator.BackgroundColor3 = state and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+            if callback then callback(state) end
+        end,
+        GetState = function() return state end
+    }
 end
 
 local function createButton(parent, text, callback)
@@ -136,10 +148,12 @@ local function createButton(parent, text, callback)
     corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = btn
 
-    btn.MouseButton1Click:Connect(callback)
+    btn.MouseButton1Click:Connect(function()
+        if callback then callback() end
+    end)
 end
 
-local function createSlider(parent, labelText, minVal, maxVal, defaultVal)
+local function createSlider(parent, labelText, minVal, maxVal, defaultVal, callback)
     local container = Instance.new("Frame")
     container.Size = UDim2.new(1, 0, 0, 50)
     container.BackgroundTransparency = 1
@@ -169,61 +183,262 @@ local function createSlider(parent, labelText, minVal, maxVal, defaultVal)
     scorner.CornerRadius = UDim.new(0,6)
     scorner.Parent = slider
 
-    slider.FocusLost:Connect(function()
+    slider.FocusLost:Connect(function(enterPressed)
         local val = tonumber(slider.Text)
-        if val and val>=minVal and val<=maxVal then
+        if val and val >= minVal and val <= maxVal then
             label.Text = labelText..": "..val
-            local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                if string.find(labelText, "WalkSpeed") then
-                    humanoid.WalkSpeed = val
-                elseif string.find(labelText, "JumpPower") then
-                    humanoid.UseJumpPower = true
-                    humanoid.JumpPower = val
-                end
-            end
-        else slider.Text=tostring(defaultVal) end
+            if callback then callback(val) end
+        else
+            slider.Text = tostring(defaultVal)
+        end
     end)
 end
 
--- Unified Content
-createSlider(contentFrame, "WalkSpeed", 16, 300, 100)
-createSlider(contentFrame, "JumpPower", 50, 300, 150)
+local function createCategory(parent, labelText)
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, 30)
+    container.BackgroundTransparency = 1
+    container.Parent = parent
 
--- Fly logic
-local flyConnection
-createToggle(contentFrame, "Toggle Fly", function(on)
-    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    if on then
-        local bv = Instance.new("BodyVelocity")
-        bv.Name = "FlyVelocity"
-        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        bv.Parent = hrp
-        flyConnection = RunService.RenderStepped:Connect(function()
-            bv.Velocity = Vector3.new(0,50,0)
-        end)
-    else
-        if flyConnection then flyConnection:Disconnect() end
-        local v = hrp:FindFirstChild("FlyVelocity")
-        if v then v:Destroy() end
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = labelText
+    label.TextColor3 = MAIN_COLOR
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 18
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = container
+    
+    return container
+end
+
+local spawnedParts = {}
+local godModeToggle, noClipToggle, flyToggle
+local speedHackValue = 16
+local jumpPowerValue = 50
+
+createCategory(contentFrame, "Tools")
+
+createButton(contentFrame, "Give F3X", function()
+    local f3x = game:GetObjects("rbxassetid://11040063484")[1]
+    f3x.Parent = player.Backpack
+end)
+
+createButton(contentFrame, "Spawn Coil Gun", function()
+    local coil = Instance.new("Part")
+    coil.Size = Vector3.new(2, 2, 4)
+    coil.Position = player.Character.HumanoidRootPart.Position + Vector3.new(0, 5, 0)
+    coil.BrickColor = BrickColor.new("Really red")
+    coil.Anchored = false
+    coil.CanCollide = true
+    
+    local weld = Instance.new("Weld")
+    weld.Part0 = coil
+    weld.Part1 = player.Character.HumanoidRootPart
+    weld.C0 = CFrame.new(0, 0, -3)
+    weld.Parent = coil
+    
+    local clickDetector = Instance.new("ClickDetector")
+    clickDetector.Parent = coil
+    
+    clickDetector.MouseClick:Connect(function()
+        local projectile = Instance.new("Part")
+        projectile.Size = Vector3.new(0.5, 0.5, 2)
+        projectile.Position = coil.Position
+        projectile.Velocity = coil.CFrame.LookVector * 500
+        projectile.BrickColor = BrickColor.new("Bright yellow")
+        projectile.Parent = workspace
+    end)
+end)
+
+createButton(contentFrame, "Infinite Yield", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+end)
+
+createCategory(contentFrame, "Movement")
+
+createSlider(contentFrame, "Walk Speed", 16, 1000, 16, function(value)
+    speedHackValue = value
+    local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then humanoid.WalkSpeed = value end
+end)
+
+createSlider(contentFrame, "Jump Power", 50, 1000, 50, function(value)
+    jumpPowerValue = value
+    local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.UseJumpPower = true
+        humanoid.JumpPower = value
     end
 end)
 
-createToggle(contentFrame, "Toggle Gravity", function(on)
-    workspace.Gravity = on and 0 or 196.2
+flyToggle = createToggle(contentFrame, "Fly", function(state)
+    if state then
+        local bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.MaxForce = Vector3.new(0, math.huge, 0)
+        bodyVelocity.Name = "FlyBodyVelocity"
+        bodyVelocity.Parent = player.Character.HumanoidRootPart
+        
+        local flySpeed = 50
+        local flyConnection
+        
+        flyConnection = RunService.Heartbeat:Connect(function()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local root = player.Character.HumanoidRootPart
+                local velocity = root:FindFirstChild("FlyBodyVelocity")
+                
+                if velocity then
+                    local direction = Vector3.new(0, 0, 0)
+                    if UserInputService:IsKeyDown(Enum.KeyCode.W) then direction += root.CFrame.LookVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.S) then direction -= root.CFrame.LookVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.A) then direction -= root.CFrame.RightVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.D) then direction += root.CFrame.RightVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then direction += Vector3.new(0, 1, 0) end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then direction -= Vector3.new(0, 1, 0) end
+                    
+                    if direction.Magnitude > 0 then
+                        direction = direction.Unit * flySpeed
+                    end
+                    
+                    velocity.Velocity = direction
+                end
+            else
+                flyConnection:Disconnect()
+            end
+        end)
+    else
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local velocity = player.Character.HumanoidRootPart:FindFirstChild("FlyBodyVelocity")
+            if velocity then velocity:Destroy() end
+        end
+    end
 end)
 
-createButton(contentFrame, "Spawn Random Block", function()
-    local part=Instance.new("Part")
-    part.Size=Vector3.new(3,3,3)
-    part.Position=player.Character and player.Character:FindFirstChild("HumanoidRootPart").Position+Vector3.new(0,10,0)
-    part.BrickColor=BrickColor.Random()
-    part.Parent=workspace
+noClipToggle = createToggle(contentFrame, "NoClip", function(state)
+    if state then
+        local noclipConnection
+        noclipConnection = RunService.Stepped:Connect(function()
+            if player.Character then
+                for _, child in ipairs(player.Character:GetDescendants()) do
+                    if child:IsA("BasePart") then
+                        child.CanCollide = false
+                    end
+                end
+            else
+                noclipConnection:Disconnect()
+            end
+        end)
+    end
 end)
 
-createButton(contentFrame, "Explosion", function()
-    local e = Instance.new("Explosion")
-    e.Position = player.Character.HumanoidRootPart.Position
-    e.Parent = workspace
+createCategory(contentFrame, "Player")
+
+godModeToggle = createToggle(contentFrame, "God Mode", function(state)
+    if state then
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.MaxHealth = math.huge
+            humanoid.Health = math.huge
+        end
+        
+        local godModeConnection
+        godModeConnection = player.CharacterAdded:Connect(function(character)
+            local humanoid = character:WaitForChild("Humanoid")
+            humanoid.MaxHealth = math.huge
+            humanoid.Health = math.huge
+        end)
+    else
+        local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.MaxHealth = 100
+            humanoid.Health = 100
+        end
+    end
 end)
+
+createButton(contentFrame, "BOOM!", function()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local explosion = Instance.new("Explosion")
+        explosion.Position = player.Character.HumanoidRootPart.Position
+        explosion.BlastPressure = 100000
+        explosion.BlastRadius = 20
+        explosion.Parent = workspace
+    end
+end)
+
+createButton(contentFrame, "Reset Character", function()
+    player:LoadCharacter()
+    local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = speedHackValue
+        humanoid.JumpPower = jumpPowerValue
+    end
+end)
+
+createCategory(contentFrame, "World")
+
+local originalGravity = workspace.Gravity
+createToggle(contentFrame, "Toggle Gravity", function(state)
+    workspace.Gravity = state and 0.1 or originalGravity
+    if not state then
+        for _, part in ipairs(spawnedParts) do
+            if part and part.Parent then
+                part:ApplyImpulse(Vector3.new(0, 0.0001, 0))
+            end
+        end
+    end
+end)
+
+createButton(contentFrame, "Spawn Part", function()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local part = Instance.new("Part")
+        part.Size = Vector3.new(4, 4, 4)
+        part.Position = player.Character.HumanoidRootPart.Position + Vector3.new(0, 10, 0)
+        part.BrickColor = BrickColor.Random()
+        part.Anchored = false
+        part.CanCollide = true
+        part.Massless = false
+        part.Parent = workspace
+        part:ApplyImpulse(Vector3.new(0, 0.1, 0))
+        table.insert(spawnedParts, part)
+    end
+end)
+
+createButton(contentFrame, "Delete All Parts", function()
+    for _, part in ipairs(spawnedParts) do
+        if part and part.Parent then part:Destroy() end
+    end
+    spawnedParts = {}
+end)
+
+player.CharacterAdded:Connect(function(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.WalkSpeed = speedHackValue
+    humanoid.JumpPower = jumpPowerValue
+    
+    if godModeToggle and godModeToggle.GetState() then
+        humanoid.MaxHealth = math.huge
+        humanoid.Health = math.huge
+    end
+    
+    if noClipToggle and noClipToggle.GetState() then noClipToggle.SetState(true) end
+    if flyToggle and flyToggle.GetState() then flyToggle.SetState(true) end
+end)
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.F5 then
+        mainFrame.Visible = not mainFrame.Visible
+    end
+end)
+
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(1, 0, 0, 80)
+infoLabel.BackgroundTransparency = 1
+infoLabel.Text = "real'iiz GUI\nSpecial thanks to:\nrealalexde (AleXDENSK54)\nw1smate (pizxamm)\nPress F5 to toggle GUI"
+infoLabel.TextColor3 = Color3.new(1, 1, 1)
+infoLabel.Font = Enum.Font.Gotham
+infoLabel.TextSize = 14
+infoLabel.TextWrapped = true
+infoLabel.Parent = contentFrame
