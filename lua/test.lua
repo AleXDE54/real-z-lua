@@ -404,10 +404,43 @@ end)
 -- World Category
 createCategory(contentFrame, "World")
 
--- Fixed Gravity Toggle
+-- В секции конфигурации
 local originalGravity = workspace.Gravity
+local spawnedParts = {}
+
+-- В функции создания части
+createButton(contentFrame, "Spawn Part", function()
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local part = Instance.new("Part")
+        part.Size = Vector3.new(4, 4, 4)
+        part.Position = player.Character.HumanoidRootPart.Position + Vector3.new(0, 10, 0)
+        part.BrickColor = BrickColor.Random()
+        part.Anchored = false
+        part.CanCollide = true
+        part.Massless = false
+        part.Parent = workspace
+        part:SetAttribute("SpawnedByCheat", true)
+        
+        -- Добавляем небольшой импульс при создании
+        part:ApplyImpulse(Vector3.new(0, 0.1, 0))
+        table.insert(spawnedParts, part)
+    end
+end)
+
+-- В функции переключения гравитации
 createToggle(contentFrame, "Toggle Gravity", function(state)
     workspace.Gravity = state and 0.1 or originalGravity
+    
+    -- При восстановлении гравитации обновляем все части
+    if not state then
+        for _, part in ipairs(spawnedParts) do
+            if part and part.Parent then
+                -- Пробуждаем физику объекта
+                part:ApplyImpulse(Vector3.new(0, 0.0001, 0))
+                part:SetAttribute("GravityUpdated", os.clock())
+            end
+        end
+    end
 end)
 
 -- Spawn Part (with gravity and hitbox)
