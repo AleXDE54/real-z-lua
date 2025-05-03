@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>real'iiz GUI - Roblox Cheat Menu</title>
+    <style>
+        :root {
+            --main-color: #4682b4;
+            --bg-color: #1e1e1e;
+            --card-color: #2d2d2d;
+            --text-color: #ffffff;
+            --accent-color: #3a9bd9;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--main-color);
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: var(--main-color);
+            border-bottom: 2px solid var(--main-color);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        
+        .code-block {
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            padding: 1rem;
+            overflow-x: auto;
+            font-family: 'Consolas', monospace;
+            margin: 1rem 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--main-color);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin: 0.5rem 0;
+        }
+        
+        .btn:hover {
+            background-color: var(--accent-color);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .feature {
+            background-color: var(--card-color);
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid var(--main-color);
+        }
+        
+        .credits {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: var(--card-color);
+            border-radius: 8px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: #161616;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>real'iiz GUI</h1>
+        <p>Advanced Roblox Cheat Menu</p>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <h2>About</h2>
+            <p>real'iiz GUI is a powerful Roblox cheat menu with multiple features including speed hacks, fly mode, god mode, and more. Special thanks to realalexde (AleXDENSK54), w1smate (pizxamm), and deepseek for their contributions.</p>
+        </div>
+        
+        <div class="card">
+            <h2>How to Use</h2>
+            <p>Copy the following Lua script and execute it in your Roblox executor:</p>
+            <div class="code-block" id="lua-code">
+                <!-- Your Lua script will be inserted here by JavaScript -->
+            </div>
+            <a href="#" class="btn" id="copy-btn">Copy to Clipboard</a>
+        </div>
+        
+        <div class="card">
+            <h2>Features</h2>
+            <div class="features">
+                <div class="feature">
+                    <h3>Movement Hacks</h3>
+                    <ul>
+                        <li>Adjustable Walk Speed</li>
+                        <li>Adjustable Jump Power</li>
+                        <li>Fly Mode (Toggle with button)</li>
+                        <li>NoClip Mode</li>
+                    </ul>
+                </div>
+                
+                <div class="feature">
+                    <h3>Player Mods</h3>
+                    <ul>
+                        <li>God Mode (Invincibility)</li>
+                        <li>Instant Character Reset</li>
+                        <li>Explosion Button (BOOM!)</li>
+                    </ul>
+                </div>
+                
+                <div class="feature">
+                    <h3>World Tools</h3>
+                    <ul>
+                        <li>Toggle Gravity</li>
+                        <li>Spawn Parts</li>
+                        <li>Delete All Spawned Parts</li>
+                        <li>F3X Building Tools</li>
+                        <li>Coil Gun</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Keybinds</h2>
+            <ul>
+                <li><strong>F5</strong> - Toggle GUI visibility</li>
+                <li><strong>WASD</strong> - Move while flying</li>
+                <li><strong>Space/Shift</strong> - Ascend/Descend while flying</li>
+            </ul>
+        </div>
+        
+        <div class="credits">
+            <h3>Special Thanks</h3>
+            <p>realalexde (AleXDENSK54)</p>
+            <p>w1smate (pizxamm)</p>
+            <p>deepseek</p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 real'iiz GUI | This content is not affiliated with Roblox Corporation</p>
+    </footer>
+
+    <script>
+        // Your Lua script here (replace with the actual script)
+        const luaScript = `-- Paste your complete Lua script here between these backticks`;
+        
+        // Insert Lua script into the code block
+        document.getElementById('lua-code').textContent = luaScript;
+        
+        // Copy to clipboard functionality
+        document.getElementById('copy-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            navigator.clipboard.writeText(luaScript).then(function() {
+                const btn = e.target;
+                btn.textContent = 'Copied!';
+                setTimeout(function() {
+                    btn.textContent = 'Copy to Clipboard';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
