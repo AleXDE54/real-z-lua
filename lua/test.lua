@@ -1,9 +1,4 @@
 -- Roblox Cheat GUI
--- Special thanks to:
--- realalexde (AleXDENSK54)
--- w1smate (pizxamm)
--- deepseek
-
 -- Services
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -26,7 +21,7 @@ local COLLAPSED_SIZE = UDim2.new(0, 40, 0, 40)
 
 -- Create ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "AlexCheatGUI"
+screenGui.Name = "RealiizGUI"
 screenGui.Parent = player:FindFirstChildOfClass("PlayerGui")
 screenGui.ResetOnSpawn = false
 
@@ -44,24 +39,6 @@ mainFrame.Parent = screenGui
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 12)
 corner.Parent = mainFrame
-
--- Title Bar
-local titleBar = Instance.new("Frame")
-titleBar.Size = UDim2.new(1, 0, 0, 30)
-titleBar.BackgroundTransparency = 1
-titleBar.Name = "TitleBar"
-titleBar.Parent = mainFrame
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -40, 1, 0)
-title.BackgroundTransparency = 1
-title.Text = "Alex Cheat GUI"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 16
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Position = UDim2.new(0, 10, 0, 0)
-title.Parent = titleBar
 
 -- Collapse Button
 local collapseIcon = Instance.new("TextButton")
@@ -256,6 +233,19 @@ local flyToggle
 local speedHackValue = 16
 local jumpPowerValue = 50
 
+-- Info section at the top
+createCategory(contentFrame, "real'iiz gui")
+
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(1, 0, 0, 60)
+infoLabel.BackgroundTransparency = 1
+infoLabel.Text = "Special thanks to:\nrealalexde (AleXDENSK54)\nw1smate (pizxamm)\ndeepseek\n\nPress F5 to toggle GUI"
+infoLabel.TextColor3 = Color3.new(1, 1, 1)
+infoLabel.Font = Enum.Font.Gotham
+infoLabel.TextSize = 14
+infoLabel.TextWrapped = true
+infoLabel.Parent = contentFrame
+
 -- Movement Category
 createCategory(contentFrame, "Movement")
 
@@ -388,7 +378,7 @@ godModeToggle = createToggle(contentFrame, "God Mode", function(state)
     end
 end)
 
--- BOOM! Button (Moved to Player category)
+-- BOOM! Button
 createButton(contentFrame, "BOOM!", function()
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
         local explosion = Instance.new("Explosion")
@@ -470,19 +460,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         mainFrame.Visible = not mainFrame.Visible
     end
 end)
-
--- Info
-createCategory(contentFrame, "Info")
-
-local infoLabel = Instance.new("TextLabel")
-infoLabel.Size = UDim2.new(1, 0, 0, 40)
-infoLabel.BackgroundTransparency = 1
-infoLabel.Text = "Press F5 to toggle GUI\nSpecial thanks to:\nrealalexde (AleXDENSK54)\nw1smate (pizxamm)\ndeepseek"
-infoLabel.TextColor3 = Color3.new(1, 1, 1)
-infoLabel.Font = Enum.Font.Gotham
-infoLabel.TextSize = 14
-infoLabel.TextWrapped = true
-infoLabel.Parent = contentFrame
 
 -- For GitHub hosting and direct injection:
 --[[
