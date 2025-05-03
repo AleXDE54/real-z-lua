@@ -235,20 +235,6 @@ local flyToggle
 local speedHackValue = 16
 local jumpPowerValue = 50
 
--- Header with credits
-createCategory(contentFrame, "real'iiz GUI")
-
-local infoLabel = Instance.new("TextLabel")
-infoLabel.Size = UDim2.new(1, 0, 0, 60)
-infoLabel.BackgroundTransparency = 1
-infoLabel.Text = "Special thanks to:\nrealalexde (AleXDENSK54)\nw1smate (pizxamm)\ndeepseek\n\nPress F5 to toggle GUI"
-infoLabel.TextColor3 = Color3.new(1, 1, 1)
-infoLabel.Font = Enum.Font.Gotham
-infoLabel.TextSize = 14
-infoLabel.TextWrapped = true
-infoLabel.Parent = contentFrame
-
--- Movement Category
 createCategory(contentFrame, "Movement")
 
 -- Speed Hack
@@ -495,3 +481,13 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         mainFrame.Visible = not mainFrame.Visible
     end
 end)
+
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(1, 0, 0, 60)
+infoLabel.BackgroundTransparency = 1
+infoLabel.Text = "Special thanks to:\nrealalexde (AleXDENSK54)\nw1smate (pizxamm)\n\nreal'iiz GUI\"
+infoLabel.TextColor3 = Color3.new(1, 1, 1)
+infoLabel.Font = Enum.Font.Gotham
+infoLabel.TextSize = 14
+infoLabel.TextWrapped = true
+infoLabel.Parent = contentFrame
